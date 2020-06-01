@@ -4,3 +4,4 @@ nltk
 pandas
 sklearn
 gunicorn
+twilio
