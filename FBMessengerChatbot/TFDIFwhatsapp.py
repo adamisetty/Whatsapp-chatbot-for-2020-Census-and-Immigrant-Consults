@@ -6,7 +6,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 app = Flask(__name__)
 transformer = Transformer('FBMessengerChatbot/data/train/QnA.csv')
 
-@app.route('/bot', methods=['POST'])
+@app.route('/', methods=['POST'])
 def bot():
     incoming_msg = request.values.get('Body', '').lower()
     resp = MessagingResponse()
