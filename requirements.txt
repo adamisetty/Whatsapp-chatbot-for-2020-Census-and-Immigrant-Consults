@@ -4,4 +4,4 @@ nltk
 pandas
 sklearn
 gunicorn
-twilio
+twilio flask requests
