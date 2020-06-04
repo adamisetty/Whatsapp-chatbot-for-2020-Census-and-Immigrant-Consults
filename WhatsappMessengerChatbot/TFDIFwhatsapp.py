@@ -1,14 +1,16 @@
 from flask import Flask, request
-from FBMessengerChatbot.TFIDF.Transformer import Transformer
-import requests
+from WhatsappMessengerChatbot.TFIDF.Transformer import Transformer
 from twilio.twiml.messaging_response import MessagingResponse
 
 app = Flask(__name__)
-transformer = Transformer('FBMessengerChatbot/data/train/QnA.csv')
+transformer = Transformer('WhatsappMessengerChatbot/data/train/QnA.csv')
 
 @app.route('/', methods=['POST'])
 def bot():
+    full_msg = request.values
+    print("full message: ", full_msg)
     incoming_msg = request.values.get('Body', '').lower()
+    print("incoming msg: ", incoming_msg)
     resp = MessagingResponse()
     msg = resp.message()
     responded = False
