@@ -1,5 +1,5 @@
-#from WhatsappMessengerChatbot.TFIDFapp import app
-from WhatsappMessengerChatbot.TFDIFwhatsapp import app
+#from WhatsappChatbot.TFIDFapp import app
+from WhatsappChatbot.TFDIFwhatsapp import app
 
 if __name__ == '__main__':
     app.run()

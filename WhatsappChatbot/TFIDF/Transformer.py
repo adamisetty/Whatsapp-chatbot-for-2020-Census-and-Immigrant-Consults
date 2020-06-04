@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from WhatsappMessengerChatbot.TFIDF.PreProcessing import text_process, lem
+from WhatsappChatbot.TFIDF.PreProcessing import text_process, lem
 
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -8,11 +8,26 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 class Transformer:
-    def __init__(self, file):
+    def __init__(self, englishFile, chineseFile, spanishFile):
         """
         initialize corpus, BoW and TFIDF from file
         """
-        self.FAQ = pd.read_csv(file, keep_default_na=False, encoding='cp1252')
+        English_FAQ = pd.read_csv(englishFile, keep_default_na=False, encoding='cp1252')
+        Spanish_FAQ = pd.read_csv(spanishFile, keep_default_na=False, encoding='cp1252')
+
+        with open(chineseFile, 'rb') as f:
+            Chinese_FAQ = f.read()
+        Chinese_FAQ  = Chinese_FAQ .decode("utf-16")
+        Chinese_FAQ  = Chinese_FAQ .split("\r\n")
+        # Traditional_Chinese_FAQ.columns = ["question", "answer"]
+        for i in range(1, len(Chinese_FAQ)):
+            Chinese_FAQ[i] = Chinese_FAQ[i].strip()
+            Chinese_FAQ[i] = Chinese_FAQ[i].split('\t')
+
+        del Chinese_FAQ[0]
+        Chinese_FAQ = pd.DataFrame(Chinese_FAQ, columns=['question', 'answer'])
+
+        self.FAQ = pd.concat([English_FAQ, Chinese_FAQ, Spanish_FAQ], ignore_index=True)
         self.questions = self.FAQ.question
         self.answers = self.FAQ.answer
         self.corpus = self.FAQ.question + ' ' + self.FAQ.answer
@@ -75,5 +90,4 @@ class Transformer:
         """
         index, similarity = self.tfidf_similarity(query)
         response = self.FAQ.answer.iloc[index]
-
-        return response
+        return response, similarity
