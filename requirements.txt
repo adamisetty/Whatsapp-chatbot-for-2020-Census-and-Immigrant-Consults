@@ -1,4 +1,5 @@
 Flask==1.1.2
+langdetect==1.0.8
 nltk
 pandas
 sklearn
