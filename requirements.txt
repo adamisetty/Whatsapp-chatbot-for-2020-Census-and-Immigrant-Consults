@@ -4,3 +4,4 @@ pandas
 sklearn
 gunicorn
 twilio
+language-detector
