@@ -8,6 +8,8 @@ transformer = Transformer('WhatsappChatbot/data/train/QnA.csv', 'WhatsappChatbot
 
 numbers = []
 greetings = {'English': 'Hello! Nice to meet you!', 'Spanish':'¡Mucho gusto! ¿Cómo estás?', 'Mandarin':'您好！很高兴为您服务'}
+passings = {'English': 'Please wait! Our representative is on the way to help you!',
+            'Spanish': 'Por favor espera, nuestro representante te ayudará', 'Mandarin': '请稍候，工作人员正在接通中。'}
 
 @app.route('/', methods=['POST'])
 def bot():
@@ -33,7 +35,11 @@ def bot():
     if not (incoming_msg == None or incoming_msg == '') and not responded:
         response, similarity = transformer.match_query(incoming_msg)
         if similarity < 0.5:
-            response = "Please wait! Our representative is on the way to help you!"
+            language = detect_language(incoming_msg)
+            if language in passings.keys():
+                response = passings.get(language)
+            else:
+                response = passings.get('English')
             msg.body(response)
         else:
             responses = response.split('|')
