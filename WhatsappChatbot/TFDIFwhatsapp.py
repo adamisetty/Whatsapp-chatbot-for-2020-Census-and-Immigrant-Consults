@@ -1,17 +1,15 @@
 from flask import Flask, request
 from WhatsappChatbot.TFIDF.Transformer import Transformer
 from twilio.twiml.messaging_response import MessagingResponse
-from language_detector import detect_language
 from langdetect import detect
 
 app = Flask(__name__)
 transformer = Transformer('WhatsappChatbot/data/train/QnA.csv', 'WhatsappChatbot/data/train/ChineseQnA.txt', 'WhatsappChatbot/data/train/SpanishQnA.csv')
 
 numbers = []
-greetings = {'English': 'Hello! Nice to meet you!', 'Spanish':'¡Mucho gusto! ¿Cómo estás?', 'Mandarin':'您好！很高兴为您服务'}
-gr =  {'en': 'Hello! Nice to meet you!', 'es':'¡Mucho gusto! ¿Cómo estás?', 'zh-cn':'您好！很高兴为您服务'}
-passings = {'English': 'Please wait! Our representative is on the way to help you!',
-            'Spanish': 'Por favor espera, nuestro representante te ayudará', 'Mandarin': '请稍候，工作人员正在接通中。'}
+greetings =  {'en': 'Hello! Nice to meet you!', 'es':'¡Mucho gusto! ¿Cómo estás?', 'zh-cn':'您好！很高兴为您服务'}
+passings = {'en': 'Please wait! Our representative is on the way to help you!',
+            'es': 'Por favor espera, nuestro representante te ayudará', 'zh-cn': '请稍候，工作人员正在接通中。'}
 
 @app.route('/', methods=['POST'])
 def bot():
@@ -22,16 +20,14 @@ def bot():
     responded = False
 
     number = request.values.get('From', '')
-    numbers.clear() ##ONLY FOR TESTING, DELETE BEFORE SUBMIT!!!
+    # signifies first message in a conversation
     if not number in numbers:
-        #signifies first message in a conversation
-        #language = detect_language(incoming_msg)
         language = detect(incoming_msg)
-        if language in gr.keys():
-            response = gr.get(language)
+        if language in greetings.keys():
+            response = greetings.get(language)
         else:
             response = "I do not understand this language, let's proceed in English \n"
-            response = response + greetings.get('English')
+            response = response + greetings.get('en')
         msg.body(response)
         numbers.append(number)
         responded = True
@@ -39,11 +35,11 @@ def bot():
     if not (incoming_msg == None or incoming_msg == '') and not responded:
         response, similarity = transformer.match_query(incoming_msg)
         if similarity < 0.5:
-            language = detect_language(incoming_msg)
+            language = detect(incoming_msg)
             if language in passings.keys():
                 response = passings.get(language)
             else:
-                response = passings.get('English')
+                response = passings.get('en')
             msg.body(response)
         else:
             responses = response.split('|')
