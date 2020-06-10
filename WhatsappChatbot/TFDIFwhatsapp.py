@@ -21,34 +21,34 @@ def bot():
 
     number = request.values.get('From', '')
     # signifies first message in a conversation
-    if not number in numbers:
-        language = detect(incoming_msg)
-        if language in greetings.keys():
-            response = greetings.get(language)
-        else:
-            response = "I do not understand this language, let's proceed in English \n"
-            response = response + greetings.get('en')
-        msg.body(response)
-        numbers.append(number)
-        responded = True
-
-    if not (incoming_msg == None or incoming_msg == '') and not responded:
+    if not (incoming_msg == None or incoming_msg == ''):
         response, similarity = transformer.match_query(incoming_msg)
-        if similarity < 0.5:
+        if not number in numbers and similarity < 0.5:
             language = detect(incoming_msg)
-            if language in passings.keys():
-                response = passings.get(language)
+            if language in greetings.keys():
+                response = greetings.get(language)
             else:
-                response = passings.get('en')
+                response = "I do not understand this language, let's proceed in English \n"
+                response = response + greetings.get('en')
             msg.body(response)
-        else:
-            responses = response.split('|')
-            response = ''
-            for r in responses:
-                if r != '':
-                    response = response + '\n' + r.strip()
-            msg.body(response)
-        responded = True
+            numbers.append(number)
+            responded = True
+        if not responded:
+            if similarity < 0.5:
+                language = detect(incoming_msg)
+                if language in passings.keys():
+                    response = passings.get(language)
+                else:
+                    response = passings.get('en')
+                msg.body(response)
+            else:
+                responses = response.split('|')
+                response = ''
+                for r in responses:
+                    if r != '':
+                        response = response + '\n' + r.strip()
+                msg.body(response)
+            responded = True
 
     if not responded:
         msg.body('Sorry, I cannot understand your message')
