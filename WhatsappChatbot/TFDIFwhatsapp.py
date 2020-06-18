@@ -20,34 +20,37 @@ def bot():
     responded = False
 
     number = request.values.get('From', '')
-    # signifies first message in a conversation
     if not (incoming_msg == None or incoming_msg == ''):
         response, similarity = transformer.match_query(incoming_msg)
+        print("similarity: ", similarity)
+        re = ''
+        # signifies first message in a conversation
         if not number in numbers and similarity < 0.5:
+            #print("number: ", number)
             language = detect(incoming_msg)
+            #print("language:", language)
             if language in greetings.keys():
-                response = greetings.get(language)
+                re = greetings.get(language)
             else:
-                response = "I do not understand this language, let's proceed in English \n"
-                response = response + greetings.get('en')
-            msg.body(response)
+                re = re + greetings.get('en')
+            msg.body(re)
             numbers.append(number)
             responded = True
         if not responded:
             if similarity < 0.5:
                 language = detect(incoming_msg)
                 if language in passings.keys():
-                    response = passings.get(language)
+                    re = passings.get(language)
                 else:
-                    response = passings.get('en')
-                msg.body(response)
+                    re = passings.get('en')
+                msg.body(re)
             else:
                 responses = response.split('|')
-                response = ''
+                re = ''
                 for r in responses:
                     if r != '':
-                        response = response + '\n' + r.strip()
-                msg.body(response)
+                        re = re + '\n' + r.strip()
+                msg.body(re)
             responded = True
 
     if not responded:
