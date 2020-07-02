@@ -4,12 +4,12 @@ from twilio.twiml.messaging_response import MessagingResponse
 from langdetect import detect
 
 app = Flask(__name__)
-transformer = Transformer('WhatsappChatbot/data/train/QnA.csv', 'WhatsappChatbot/data/train/ChineseQnA.txt', 'WhatsappChatbot/data/train/SpanishQnA.csv')
+transformer = Transformer('WhatsappChatbot/data/train/QnA.csv', 'WhatsappChatbot/data/train/SimplifiedChineseQnA.csv', 'WhatsappChatbot/data/train/traditionalChineseQnA.csv', 'WhatsappChatbot/data/train/SpanishQnA.csv')
 
 numbers = []
 greetings =  {'en': 'Hello! Nice to meet you!', 'es':'¡Mucho gusto! ¿Cómo estás?', 'zh-cn':'您好！很高兴为您服务'}
-passings = {'en': 'Please wait! Our representative is on the way to help you!',
-            'es': 'Por favor espera, nuestro representante te ayudará', 'zh-cn': '请稍候，工作人员正在接通中。'}
+passings = {'en': 'Sorry, I did not understand your question. ',
+            'es': 'Lo siento, no entiendo su pregunta', 'zh-cn': '请稍候，工作人员正在接通中。'}
 
 @app.route('/', methods=['POST'])
 def bot():
