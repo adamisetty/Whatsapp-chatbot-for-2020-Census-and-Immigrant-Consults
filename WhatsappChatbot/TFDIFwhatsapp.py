@@ -9,7 +9,7 @@ transformer = Transformer('WhatsappChatbot/data/train/QnA.csv', 'WhatsappChatbot
 numbers = []
 greetings =  {'en': 'Hello! Nice to meet you!', 'es':'¡Mucho gusto! ¿Cómo estás?', 'zh-cn':'您好！很高兴为您服务'}
 passings = {'en': 'Sorry, I did not understand your question. ',
-            'es': 'Lo siento, no entiendo su pregunta', 'zh-cn': '请稍候，工作人员正在接通中。'}
+            'es': 'Lo siento, no entiendo su pregunta', 'zh-cn': '对不起，我没有理解您的问题'}
 
 @app.route('/', methods=['POST'])
 def bot():
@@ -22,7 +22,7 @@ def bot():
     number = request.values.get('From', '')
     if not (incoming_msg == None or incoming_msg == ''):
         response, similarity = transformer.match_query(incoming_msg)
-        print("similarity: ", similarity)
+        #print("similarity: ", similarity)
         re = ''
         # signifies first message in a conversation
         if not number in numbers and similarity < 0.5:
