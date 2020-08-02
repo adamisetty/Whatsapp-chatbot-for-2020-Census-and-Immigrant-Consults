@@ -2,12 +2,21 @@ from flask import Flask, request
 from WhatsappChatbot.TFIDF.Transformer import Transformer
 from twilio.twiml.messaging_response import MessagingResponse
 from langdetect import detect
+import pymongo
+import os
+from pymongo import MongoClient
 
 app = Flask(__name__)
-transformer = Transformer('WhatsappChatbot/data/train/QnA.csv', 'WhatsappChatbot/data/train/SimplifiedChineseQnA.csv', 'WhatsappChatbot/data/train/traditionalChineseQnA.csv', 'WhatsappChatbot/data/train/SpanishQnA.csv')
+transformer = Transformer('WhatsappChatbot/data/train/QnA.csv', 'WhatsappChatbot/data/train/SimplifiedChineseQnA.csv',
+                          'WhatsappChatbot/data/train/traditionalChineseQnA.csv', 'WhatsappChatbot/data/train/SpanishQnA.csv')
+
+MONGO_URI = os.environ['MONGO_URI']
+cluster = MongoClient(MONGO_URI)
+db = cluster["QandA"]
+collection = db["QandA"]
 
 numbers = []
-greetings =  {'en': 'Hello! Nice to meet you!', 'es':'¡Mucho gusto! ¿Cómo estás?', 'zh-cn':'您好！很高兴为您服务'}
+greetings = {'en': 'Hello! Nice to meet you!', 'es':'¡Mucho gusto! ¿Cómo estás?', 'zh-cn':'您好！很高兴为您服务'}
 passings = {'en': 'Sorry, I did not understand your question. ',
             'es': 'Lo siento, no entiendo su pregunta', 'zh-cn': '对不起，我没有理解您的问题'}
 
@@ -22,19 +31,17 @@ def bot():
     number = request.values.get('From', '')
     if not (incoming_msg == None or incoming_msg == ''):
         response, similarity = transformer.match_query(incoming_msg)
-        #print("similarity: ", similarity)
         re = ''
         # signifies first message in a conversation
         if not number in numbers and similarity < 0.5:
-            #print("number: ", number)
             language = detect(incoming_msg)
-            #print("language:", language)
             if language in greetings.keys():
                 re = greetings.get(language)
             else:
                 re = re + greetings.get('en')
             msg.body(re)
             numbers.append(number)
+            insert(incoming_msg, re, number)
             responded = True
         if not responded:
             if similarity < 0.5:
@@ -44,6 +51,7 @@ def bot():
                 else:
                     re = passings.get('en')
                 msg.body(re)
+                insert(incoming_msg, re, number)
             else:
                 responses = response.split('|')
                 re = ''
@@ -51,13 +59,16 @@ def bot():
                     if r != '':
                         re = re + '\n' + r.strip()
                 msg.body(re)
+                insert(incoming_msg, re, number)
             responded = True
 
     if not responded:
         msg.body('Sorry, I cannot understand your message')
     return str(resp)
 
-
+def insert(message, response, recipient):
+    collection.insert_one({"question": message,
+                           "answer": response, 'recipient': recipient})
 if __name__ == '__main__':
     app.run()
 

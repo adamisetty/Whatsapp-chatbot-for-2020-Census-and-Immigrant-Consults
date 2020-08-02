@@ -5,4 +5,4 @@ pandas
 sklearn
 gunicorn
 twilio
-jieba==0.42.1
+pymongo
