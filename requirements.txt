@@ -6,3 +6,4 @@ sklearn
 gunicorn
 twilio
 pymongo
+dnspython
