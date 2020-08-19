@@ -5,6 +5,7 @@ from langdetect import detect
 import pymongo
 import os
 from pymongo import MongoClient
+import datetime
 
 app = Flask(__name__)
 transformer = Transformer('WhatsappChatbot/data/train/QnA.csv', 'WhatsappChatbot/data/train/SimplifiedChineseQnA.csv',
@@ -67,8 +68,9 @@ def bot():
     return str(resp)
 
 def insert(message, response, recipient):
-    collection.insert_one({"question": message,
-                           "answer": response, 'recipient': recipient})
+    time = datetime.datetime.now()
+    collection.insert_one({"question": message, "answer": response, 'recipient': recipient,
+                           'time': time, 'source': "Whatsapp"})
 if __name__ == '__main__':
     app.run()
 
